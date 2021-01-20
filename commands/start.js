@@ -1,5 +1,6 @@
 const fs = require("fs");
 const { Builder, By, Key, until } = require('selenium-webdriver');
+const firefox = require('selenium-webdriver/firefox');
 
 let credentials = JSON.parse(fs.readFileSync("./credentials.json", "utf8"));
 defaultSettings = {
@@ -16,7 +17,11 @@ let isStarting = false;
 (async function () {
     try {
         console.log("Starting a driver");
-    driver = await new Builder().forBrowser('firefox').build();
+    driver = await new Builder().forBrowser('firefox')
+    .setFirefoxOptions(new firefox.Options().headless().windowSize({
+        width: 5000,
+        height: 5000
+    })).build();
         console.log("Going to a page");
         await driver.get("https://aternos.org/go/");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
