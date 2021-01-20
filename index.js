@@ -15,7 +15,8 @@ settings.checkInterval *= 1000;
 
 token = fs.readFileSync("./token.txt", "utf8");
 
-console.log(settings);
+console.log("settings", settings);
+console.log("token", token);
 
 client.on("ready", () => {
   console.log(`The bot is running as ${client.user.tag}`);

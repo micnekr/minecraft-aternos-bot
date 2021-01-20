@@ -14,8 +14,10 @@ let isStarting = false;
 
 // setup
 (async function () {
-    driver = await new Builder().forBrowser('firefox').build();
     try {
+        console.log("Starting a driver");
+    driver = await new Builder().forBrowser('firefox').build();
+        console.log("Going to a page");
         await driver.get("https://aternos.org/go/");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
         await driver.findElement(By.id("password")).sendKeys(credentials.password, Key.RETURN);
