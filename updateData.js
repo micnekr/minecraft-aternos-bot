@@ -8,7 +8,7 @@ const getStatus = util.promisify(getStatusCallback);
 
 module.exports = async function(serverName, serverPort){
     let response = await getStatus(serverName, serverPort);
-    writeImageIfNeeded(response.favicon);
+    writeImageIfNeeded(response.icon);
 
     response.fileName = fileName;
 

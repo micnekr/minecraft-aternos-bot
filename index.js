@@ -3,10 +3,10 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 
 const status = require("./commands/status.js");
+const start = require("./commands/start.js");
 
 let settings = JSON.parse(fs.readFileSync("./settings.json", "utf8"));
 defaultSettings = {
-  port: 25565,
   prefix: "/"
 };
 
@@ -31,17 +31,32 @@ client.on("message", async function (msg) {
   if (msg.content.startsWith(settings.prefix)) {
     const command = msg.content.substring(settings.prefix.length);
     try{
+      const data = await updateBotStatus();
+      const embed = new Discord.MessageEmbed()
       switch(command){
         case "status":
             // update the status
-            const data = await updateBotStatus();
 
-            let embed = new Discord.MessageEmbed()
-            .setTitle(`The server is ${status.getStatusMessage(data.online)}`)
+            embed.setTitle(`The server is ${status.getStatusMessage(data.online)}`)
             .attachFiles([data.fileName])
             .setThumbnail(`attachment://${data.fileName}`);
             msg.channel.send(embed);
           
+          break;
+          case "start":
+            // first check if the bot is online
+            if (data.online){
+              console.log("already online");
+            }else{
+              console.log("starting");
+              embed.setTitle("Starting the server")
+              .attachFiles([data.fileName])
+              .setThumbnail(`attachment://${data.fileName}`);
+              msg.channel.send(embed);
+              start.start(function(updateData){
+                console.log(updateData);
+              });
+            }
           break;
       }
     }catch(err){
@@ -54,13 +69,16 @@ client.on("message", async function (msg) {
 client.login(token);
 
 function isOnline(response){
-  return response.online && !response.motd.includes("offline");
+  return response.online && response.players.max !== 0;
 }
 
 async function updateBotStatus() {
   const data = await status.getStatusData(settings.serverName, settings.port);
+  console.log(data);
   const isServerOnline = isOnline(data);
   data.online = isServerOnline;
+
+  if (data.status == "error") throw new Error(data.error)
 
   let serverStatus;
 
