@@ -16,7 +16,7 @@ settings.checkInterval *= 1000;
 token = fs.readFileSync("./token.txt", "utf8");
 
 console.log("settings", settings);
-console.log("token", token);
+console.log("token", [token]);
 
 client.on("ready", () => {
   console.log(`The bot is running as ${client.user.tag}`);
@@ -67,6 +67,7 @@ client.on("message", async function (msg) {
   }
 });
 
+console.log("trying to login");
 client.login(token);
 
 function isOnline(response){

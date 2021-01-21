@@ -51,6 +51,8 @@ async function start(callback) {
     let lastMessage = "";
     while(true){
         await sleep(1000);
+        // TODO: check for id #confirm and click
+
         let newMessage = await driver.findElement(By.className("statuslabel-label")).getText()
         if (newMessage !== lastMessage){
             lastMessage = newMessage;
