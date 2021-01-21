@@ -18,6 +18,8 @@ token = fs.readFileSync("./token.txt", "utf8").replace(/\r?\n|\r/g, "");
 console.log("settings", settings);
 console.log("token", [token]);
 
+start.setup(settings);
+
 client.on("ready", () => {
   console.log(`The bot is running as ${client.user.tag}`);
 
@@ -27,20 +29,19 @@ client.on("ready", () => {
 });
 
 client.on("message", async function (msg) {
+  console.log(msg.content);
 
   // do the prefix
   if (msg.content.startsWith(settings.prefix)) {
     const command = msg.content.substring(settings.prefix.length);
     try{
       const data = await updateBotStatus();
-      const embed = new Discord.MessageEmbed()
+      console.log(command);
       switch(command){
         case "status":
             // update the status
 
-            embed.setTitle(`The server is ${status.getStatusMessage(data.online)}`)
-            .attachFiles([data.fileName])
-            .setThumbnail(`attachment://${data.fileName}`);
+            let embed = getDefaultEmbed(data).setTitle(`The server is ${status.getStatusMessage(data.online)}`)
             msg.channel.send(embed);
           
           break;
@@ -48,15 +49,17 @@ client.on("message", async function (msg) {
             // first check if the bot is online
             if (data.online){
               console.log("already online");
+              let embed = getDefaultEmbed(data).setTitle("The server is already online")
+              msg.channel.send(embed);
             }else{
               console.log("starting");
-              embed.setTitle("Starting the server")
-              .attachFiles([data.fileName])
-              .setThumbnail(`attachment://${data.fileName}`);
-              msg.channel.send(embed);
-              start.start(function(updateData){
+              let embed = getDefaultEmbed(data).setTitle("Starting the server")
+              let sentMsg = await msg.channel.send(embed);
+              await start.start(function(updateData){
                 console.log(updateData);
+                sentMsg.edit(getDefaultEmbed(data).setTitle(updateData));
               });
+              msg.channel.send(getDefaultEmbed(data).setTitle("The server is up"))
             }
           break;
       }
@@ -72,6 +75,12 @@ client.login(token);
 
 function isOnline(response){
   return response.online && response.players.max !== 0;
+}
+
+function getDefaultEmbed(data){
+  return new Discord.MessageEmbed()
+  .attachFiles([data.fileName])
+  .setThumbnail(`attachment://${data.fileName}`);
 }
 
 async function updateBotStatus() {
