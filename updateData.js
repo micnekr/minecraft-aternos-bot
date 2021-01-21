@@ -6,7 +6,8 @@ const fileName = "serverPicture.png";
 
 const getStatus = util.promisify(getStatusCallback);
 
-module.exports = async function(serverName, serverPort){
+module.exports = {update, fileName};
+async function update(serverName, serverPort){
     let response = await getStatus(serverName, serverPort);
     writeImageIfNeeded(response.icon);
 

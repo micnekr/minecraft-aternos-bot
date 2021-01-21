@@ -14,22 +14,28 @@ let isLoaded = false;
 let isStarting = false;
 
 // setup
-async function setup (settings) {
+async function setup(settings) {
     try {
-        console.log("Starting a driver");
-    driver = await new Builder().forBrowser('firefox')
-    .setFirefoxOptions(new firefox.Options())/*
-    .setFirefoxOptions(new firefox.Options().headless().windowSize({
-        width: 5000,
-        height: 5000
-    }))*/.build();
-        console.log("Going to a page");
+
+        console.log("Starting Selenium");
+        driver = await new Builder().forBrowser('firefox')
+            .setFirefoxOptions(new firefox.Options().headless().windowSize({
+                width: 5000,
+                height: 5000
+            })).build();
+        console.log("Going to the login page");
         await driver.get("https://aternos.org/go/");
+        console.log("Logging in");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
         await driver.findElement(By.id("password")).sendKeys(credentials.password, Key.RETURN);
         await driver.wait(until.titleIs(afterLoginTitle), 1000);
-        await waitAndClick(By.css(`div[data-id=${settings.serverId}]`));
+        // click on the correct server
+        if(settings.serverId == undefined) await waitAndClick(By.className("server-body"));
+        else await waitAndClick(By.css(`div[data-id=${settings.serverId}]`));
+
+        // accepting the privacy policy
         await waitAndClick(By.id("accept-choices"));
+
         isLoaded = true;
         console.log("Finished setup of start.js")
     } catch (err) {
@@ -45,29 +51,32 @@ async function start(callback) {
     if (isStarting) return null;
 
     isStarting = true;
+
     console.log("clicking the start button");
     waitAndClick(By.id("start"));
-    console.log("clicking the notifications button");
-    try{
+    console.log("clicking the notifications button or agreeing to the policies");
+    try {
         await waitAndClick(By.css(".alert-buttons .btn-green"));
         await driver.findElement(By.css(".alert-buttons .btn-green")).click()
-    }catch(err){}
+    } catch (err) { }
 
-    // TODO: wait for it to finalise
+    // monitoring the state of the process
     let lastMessage = "";
-    while(true){
-        await sleep(1000);
+    while (true) {
+        await sleep(3000);
         // TODO: check for id #confirm and click
-        try{
+        try {
             await driver.findElement(By.id("confirm")).click()
-        }catch(err){}
+        } catch (err) { }
 
         let newMessage = await driver.findElement(By.className("statuslabel-label")).getText()
-        if (newMessage !== lastMessage){
+        if (newMessage !== lastMessage) {
             lastMessage = newMessage;
             callback(newMessage);
         }
-        if(newMessage.trim() === "Online") break;
+
+        // if the server is online, quit
+        if (newMessage.trim() === "Online") break;
     }
 
     console.log("The server is up")
@@ -80,6 +89,6 @@ async function waitAndClick(selector) {
     await driver.findElement(selector).click();
 }
 
-async function sleep(time){
+async function sleep(time) {
     await new Promise(r => setTimeout(r, time));
 }

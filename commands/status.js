@@ -1,10 +1,10 @@
 const Discord = require("discord.js");
-const updateData = require("../updateData.js");
+const {update, fileName} = require("../updateData.js");
 
-module.exports = {getStatusData, getStatusMessage}
+module.exports = {getStatusData, getStatusMessage, fileName}
 
 async function getStatusData(serverName, serverPort) {
-    const response = await updateData(serverName, serverPort);
+    const response = await update(serverName, serverPort);
     return response;
 }
 

@@ -4,12 +4,16 @@ const client = new Discord.Client();
 
 const status = require("./commands/status.js");
 const start = require("./commands/start.js");
+const help = require("./commands/help.js");
+
+const commandsWithUpdate = ["start", "status"];
 
 let settings = JSON.parse(fs.readFileSync("./settings.json", "utf8"));
 defaultSettings = {
   prefix: "/"
 };
 
+// set the settings
 settings = Object.assign({}, defaultSettings, settings);
 settings.checkInterval *= 1000;
 
@@ -31,61 +35,75 @@ client.on("ready", () => {
 client.on("message", async function (msg) {
   console.log(msg.content);
 
-  // do the prefix
+  // check the prefix
   if (msg.content.startsWith(settings.prefix)) {
     const command = msg.content.substring(settings.prefix.length);
-    try{
-      const data = await updateBotStatus();
-      console.log(command);
-      switch(command){
-        case "status":
-            // update the status
+    try {
 
-            let embed = getDefaultEmbed(data).setTitle(`The server is ${status.getStatusMessage(data.online)}`)
-            msg.channel.send(embed);
-          
+      let data, embed;
+
+      // update the status
+      if (commandsWithUpdate.includes(command)) data = await updateBotStatus();
+      console.log(command);
+      switch (command) {
+        case "status":
+          // send the data
+          embed = getDefaultEmbed().setTitle(`The server is ${status.getStatusMessage(data.online)}`)
+          msg.channel.send(embed);
+
           break;
-          case "start":
-            // first check if the bot is online
-            if (data.online){
-              console.log("already online");
-              let embed = getDefaultEmbed(data).setTitle("The server is already online")
-              msg.channel.send(embed);
-            }else{
-              console.log("starting");
-              let embed = getDefaultEmbed(data).setTitle("Starting the server")
-              let sentMsg = await msg.channel.send(embed);
-              await start.start(function(updateData){
-                console.log(updateData);
-                sentMsg.edit(getDefaultEmbed(data).setTitle(updateData));
-              });
-              msg.channel.send(getDefaultEmbed(data).setTitle("The server is up"))
-            }
+        case "start":
+          // first check if the bot is online
+          if (data.online) {
+            // send the message that the server is online
+            console.log("already online");
+            msg.channel.send(getDefaultEmbed().setTitle("The server is already online"));
+          } else {
+
+            console.log("starting the server");
+            // announce the server starting
+            let sentMsg = await msg.channel.send(getDefaultEmbed().setTitle("Starting the server"));
+
+            // update the embed until the server is up
+            await start.start(function (updateData) {
+              console.log(updateData);
+              sentMsg.edit(getDefaultEmbed().setTitle(updateData));
+            });
+
+            // announce that the server is up
+            msg.channel.send(getDefaultEmbed().setTitle("The server is up"))
+          }
+          break;
+        case "help":
+          embed = getDefaultEmbed()
+            .setTitle("Minecraft Server Bot Commands")
+            .setDescription(help(settings.prefix))
+          msg.channel.send(embed);
           break;
       }
-    }catch(err){
+    } catch (err) {
       console.error("error", err);
       msg.channel.send("An error has occured");
     }
   }
 });
 
-console.log("trying to login");
+console.log("Logging into discord");
 client.login(token);
 
-function isOnline(response){
+function isOnline(response) {
   return response.online && response.players.max !== 0;
 }
 
-function getDefaultEmbed(data){
+function getDefaultEmbed() {
   return new Discord.MessageEmbed()
-  .attachFiles([data.fileName])
-  .setThumbnail(`attachment://${data.fileName}`);
+    .attachFiles([status.fileName])
+    .setThumbnail(`attachment://${status.fileName}`);
 }
 
 async function updateBotStatus() {
+  // fetch data
   const data = await status.getStatusData(settings.serverName, settings.port);
-  console.log(data);
   const isServerOnline = isOnline(data);
   data.online = isServerOnline;
 
@@ -93,13 +111,15 @@ async function updateBotStatus() {
 
   let serverStatus;
 
-  if(isServerOnline){
+  if (isServerOnline) {
     client.user.setStatus('online');
     serverStatus = 'Server online';
-  }else{
+  } else {
     client.user.setStatus('dnd');
     serverStatus = 'Server offline';
   }
+
+  // also set the status
   client.user.setActivity(serverStatus, { type: 'PLAYING' });
 
   return data;
