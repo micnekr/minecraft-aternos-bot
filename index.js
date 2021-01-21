@@ -13,7 +13,7 @@ defaultSettings = {
 settings = Object.assign({}, defaultSettings, settings);
 settings.checkInterval *= 1000;
 
-token = fs.readFileSync("./token.txt", "utf8");
+token = fs.readFileSync("./token.txt", "utf8").replace(/\r?\n|\r/g, "");
 
 console.log("settings", settings);
 console.log("token", [token]);

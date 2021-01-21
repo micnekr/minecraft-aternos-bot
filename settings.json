@@ -1,5 +1,5 @@
 {
     "prefix": "/",
     "serverName": "rococor.aternos.me",
-    "checkInterval": 30
+    "checkInterval": 60
 }
