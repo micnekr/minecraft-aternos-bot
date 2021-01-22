@@ -97,6 +97,7 @@ logger.info("Logging into discord");
 client.login(token);
 
 function isOnline(response) {
+  logger.debug(response);
   return response.online && response.players.max !== 0;
 }
 
