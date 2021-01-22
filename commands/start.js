@@ -31,10 +31,7 @@ async function setup(settings) {
         logger.info("Logging in");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
         await driver.findElement(By.id("password")).sendKeys(credentials.password, Key.RETURN);
-        await sleep(3000);
         logger.info("waiting for the title to change")
-        logger.info(await driver.getTitle());
-        await driver.wait(until.titleIs(afterLoginTitle), 3000);
         await sleep(3000);
         // click on the correct server
         logger.info("Going to a specific server");
