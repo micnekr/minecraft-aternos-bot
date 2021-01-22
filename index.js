@@ -74,7 +74,7 @@ client.on("message", async function (msg) {
               sentMsg.edit(getDefaultEmbed().setTitle(updateData));
             });
             logger.info("The server is up");
-            
+
             // announce that the server is up
             msg.channel.send(getDefaultEmbed().setTitle("The server is up"))
           }
@@ -133,4 +133,27 @@ async function updateBotStatus() {
 // to enable loging
 process.on('unhandledRejection', (reason, promise) => {
   throw reason;
+})
+
+const others = [`SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`]
+let signalListener;
+if (process.platform === "win32") {
+  signalListener = require("readline")
+    .createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+} else signalListener = process;
+
+others.forEach((eventType) => {
+  signalListener.on(eventType, async function () {
+    logger.info("cleanup");
+    let driver = start.getDriver()
+    if (driver !== undefined) {
+      await driver.quit();
+      logger.info("quit the driver");
+    }
+    logger.info("finished cleanup");
+    process.exit();
+  }.bind(null));
 })

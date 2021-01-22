@@ -26,7 +26,7 @@ async function setup(settings) {
                 width: 5000,
                 height: 5000
             })).build();
-            logger.info("Going to the login page");
+        logger.info("Going to the login page");
         await driver.get("https://aternos.org/go/");
         logger.info("Logging in");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
@@ -53,7 +53,11 @@ async function setup(settings) {
     }
 }
 
-module.exports = { start, setup }
+module.exports = { start, setup, getDriver }
+
+function getDriver(){
+    return driver;
+}
 
 async function start(callback) {
     logger.info("isLoaded, isStarting:" + isLoaded + " " + isStarting);
