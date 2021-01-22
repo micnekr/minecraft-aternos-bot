@@ -42,6 +42,8 @@ async function setup(settings) {
         await sleep(3000);
         logger.info("Accepting privacy policy")
 
+        logger.info(driver.getCurrentUrl().toString());
+
         // accepting the privacy policy
         await waitAndClick(By.id("accept-choices"));
 
