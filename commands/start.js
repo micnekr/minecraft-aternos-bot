@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
+const { Logger } = require("selenium-webdriver/lib/logging");
 
 const logger = require("../getWinstonLogger.js")();
 
@@ -32,6 +33,7 @@ async function setup(settings) {
         await driver.findElement(By.id("password")).sendKeys(credentials.password, Key.RETURN);
         await driver.wait(until.titleIs(afterLoginTitle), 1000);
         // click on the correct server
+        logger.info("Going to a specific server");
         if(settings.serverId == undefined) await waitAndClick(By.className("server-body"));
         else await waitAndClick(By.css(`div[data-id=${settings.serverId}]`));
 
@@ -49,6 +51,7 @@ async function setup(settings) {
 module.exports = { start, setup }
 
 async function start(callback) {
+    logger.info("isLoaded, isStarting:" + isLoaded + " " + isStarting);
     if (!isLoaded) return false;
     if (isStarting) return null;
 

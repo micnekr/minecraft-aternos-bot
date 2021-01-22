@@ -70,10 +70,11 @@ client.on("message", async function (msg) {
 
             // update the embed until the server is up
             await start.start(function (updateData) {
-              logger.info(updateData);
+              logger.info("Server update data:" + updateData);
               sentMsg.edit(getDefaultEmbed().setTitle(updateData));
             });
-
+            logger.info("The server is up");
+            
             // announce that the server is up
             msg.channel.send(getDefaultEmbed().setTitle("The server is up"))
           }
