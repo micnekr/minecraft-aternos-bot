@@ -3,7 +3,7 @@ const winston = require("winston");
 // create a logger
 module.exports = function () {
     return winston.createLogger({
-        level: 'info',
+        level: 'debug',
         format: winston.format.json(),
         defaultMeta: { service: 'user-service' },
         transports: [
