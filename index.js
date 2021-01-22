@@ -129,3 +129,8 @@ async function updateBotStatus() {
 
   return data;
 }
+
+// to enable loging
+process.on('unhandledRejection', (reason, promise) => {
+  throw reason;
+})
