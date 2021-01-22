@@ -7,6 +7,7 @@ const fileName = "serverPicture.png";
 const getStatus = util.promisify(getStatusCallback);
 
 module.exports = {update, fileName};
+
 async function update(serverName, serverPort){
     let response = await getStatus(serverName, serverPort);
     writeImageIfNeeded(response.icon);
@@ -21,6 +22,5 @@ function writeImageIfNeeded(imageString) {
         // Remove header
         const image = imageString.split(";base64,").pop();
         fs.writeFileSync("./" + fileName, image, { encoding: "base64" });
-        console.log("Image downloaded");
     }
 }

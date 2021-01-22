@@ -2,6 +2,8 @@ const fs = require("fs");
 const { Builder, By, Key, until } = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
 
+const logger = require("../getWinstonLogger.js")();
+
 let credentials = JSON.parse(fs.readFileSync("./credentials.json", "utf8"));
 defaultSettings = {
     prefix: "/"
@@ -17,15 +19,15 @@ let isStarting = false;
 async function setup(settings) {
     try {
 
-        console.log("Starting Selenium");
+        logger.info("Starting Selenium");
         driver = await new Builder().forBrowser('firefox')
             .setFirefoxOptions(new firefox.Options().headless().windowSize({
                 width: 5000,
                 height: 5000
             })).build();
-        console.log("Going to the login page");
+            logger.info("Going to the login page");
         await driver.get("https://aternos.org/go/");
-        console.log("Logging in");
+        logger.info("Logging in");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
         await driver.findElement(By.id("password")).sendKeys(credentials.password, Key.RETURN);
         await driver.wait(until.titleIs(afterLoginTitle), 1000);
@@ -37,9 +39,9 @@ async function setup(settings) {
         await waitAndClick(By.id("accept-choices"));
 
         isLoaded = true;
-        console.log("Finished setup of start.js")
+        logger.info("Finished setup of start.js")
     } catch (err) {
-        console.error("Error starting driver:", err);
+        logger.error("Error starting driver:", err);
         await driver.quit();
     }
 }
@@ -52,9 +54,9 @@ async function start(callback) {
 
     isStarting = true;
 
-    console.log("clicking the start button");
+    logger.info("clicking the start button");
     waitAndClick(By.id("start"));
-    console.log("clicking the notifications button or agreeing to the policies");
+    logger.info("clicking the notifications button or agreeing to the policies");
     try {
         await waitAndClick(By.css(".alert-buttons .btn-green"));
         await driver.findElement(By.css(".alert-buttons .btn-green")).click()
@@ -79,7 +81,7 @@ async function start(callback) {
         if (newMessage.trim() === "Online") break;
     }
 
-    console.log("The server is up")
+    logger.info("The server is up")
     isStarting = false;
     return;
 }

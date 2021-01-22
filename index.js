@@ -13,19 +13,21 @@ defaultSettings = {
   prefix: "/"
 };
 
+const logger = require("./getWinstonLogger.js")();
+
 // set the settings
 settings = Object.assign({}, defaultSettings, settings);
 settings.checkInterval *= 1000;
 
 token = fs.readFileSync("./token.txt", "utf8").replace(/\r?\n|\r/g, "");
 
-console.log("settings", settings);
-console.log("token", [token]);
+logger.info("settings", settings);
+logger.info("token", [token]);
 
 start.setup(settings);
 
 client.on("ready", () => {
-  console.log(`The bot is running as ${client.user.tag}`);
+  logger.info(`The bot is running as ${client.user.tag}`);
 
   // update the bot
   updateBotStatus();
@@ -33,7 +35,7 @@ client.on("ready", () => {
 });
 
 client.on("message", async function (msg) {
-  console.log(msg.content);
+  logger.debug(msg.content);
 
   // check the prefix
   if (msg.content.startsWith(settings.prefix)) {
@@ -44,9 +46,11 @@ client.on("message", async function (msg) {
 
       // update the status
       if (commandsWithUpdate.includes(command)) data = await updateBotStatus();
-      console.log(command);
+      logger.debug(command);
       switch (command) {
         case "status":
+          // TODO: logging
+          // TODO: response codes
           // send the data
           embed = getDefaultEmbed().setTitle(`The server is ${status.getStatusMessage(data.online)}`)
           msg.channel.send(embed);
@@ -56,17 +60,17 @@ client.on("message", async function (msg) {
           // first check if the bot is online
           if (data.online) {
             // send the message that the server is online
-            console.log("already online");
+            logger.info("already online");
             msg.channel.send(getDefaultEmbed().setTitle("The server is already online"));
           } else {
 
-            console.log("starting the server");
+            logger.info("starting the server");
             // announce the server starting
             let sentMsg = await msg.channel.send(getDefaultEmbed().setTitle("Starting the server"));
 
             // update the embed until the server is up
             await start.start(function (updateData) {
-              console.log(updateData);
+              logger.info(updateData);
               sentMsg.edit(getDefaultEmbed().setTitle(updateData));
             });
 
@@ -82,13 +86,13 @@ client.on("message", async function (msg) {
           break;
       }
     } catch (err) {
-      console.error("error", err);
+      logger.error("error", err);
       msg.channel.send("An error has occured");
     }
   }
 });
 
-console.log("Logging into discord");
+logger.info("Logging into discord");
 client.login(token);
 
 function isOnline(response) {
