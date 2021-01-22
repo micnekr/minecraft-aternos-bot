@@ -35,6 +35,7 @@ async function setup(settings) {
         await sleep(3000);
         // click on the correct server
         logger.info("Going to a specific server");
+        logger.info((await driver.getCurrentUrl()).toString());
         logger.info("clicking on the first server: " + (settings.serverId == undefined) + ", server id: " + settings.serverId);
         if(settings.serverId == undefined) await waitAndClick(By.className("server-body"));
         else await waitAndClick(By.css(`div[data-id=${settings.serverId}]`));
