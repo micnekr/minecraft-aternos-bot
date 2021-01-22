@@ -31,10 +31,11 @@ async function setup(settings) {
         logger.info("Logging in");
         await driver.findElement(By.id("user")).sendKeys(credentials.user);
         await driver.findElement(By.id("password")).sendKeys(credentials.password, Key.RETURN);
-        logger.info("waiting for the title to change")
+        logger.info("waiting for the page to change")
         await sleep(3000);
         // click on the correct server
         logger.info("Going to a specific server");
+        logger.info("clicking on the first server: " + settings.serverId == undefined + ", server id: " + settings.serverId);
         if(settings.serverId == undefined) await waitAndClick(By.className("server-body"));
         else await waitAndClick(By.css(`div[data-id=${settings.serverId}]`));
 
