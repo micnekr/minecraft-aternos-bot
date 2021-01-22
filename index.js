@@ -97,7 +97,6 @@ logger.info("Logging into discord");
 client.login(token);
 
 function isOnline(response) {
-  logger.debug(response);
   return response.online && response.players.max !== 0;
 }
 
@@ -108,12 +107,19 @@ function getDefaultEmbed() {
 }
 
 async function updateBotStatus() {
+  logger.info("Updating the status")
+
   // fetch data
-  const data = await status.getStatusData(settings.serverName, settings.port);
+  let data = await status.getStatusData(settings.serverName, settings.port);
   const isServerOnline = isOnline(data);
   data.online = isServerOnline;
 
-  if (data.status == "error") throw new Error(data.error)
+  logger.debug(response);
+
+  if (data.status == "error") {
+    logger.error("Status update error: ", data.status);
+    throw new Error(data.error)
+  }
 
   let serverStatus;
 
