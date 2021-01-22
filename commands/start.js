@@ -40,10 +40,10 @@ async function setup(settings) {
         if(settings.serverId == undefined) await waitAndClick(By.className("server-body"));
         else await waitAndClick(By.css(`div[data-id=${settings.serverId}]`));
 
+        logger.info((await driver.getCurrentUrl()).toString());
         await sleep(3000);
         logger.info("Accepting privacy policy")
 
-        logger.info((await driver.getCurrentUrl()).toString());
 
         // accepting the privacy policy
         await waitAndClick(By.id("accept-choices"));
